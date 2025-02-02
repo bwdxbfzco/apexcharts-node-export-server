@@ -6,14 +6,11 @@ RUN useradd -m appuser
 # Set the working directory
 WORKDIR /app
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Copy package.json and package-lock.json
+COPY package.json ./
 
-# Copy package.json and pnpm-lock.yaml
-COPY package.json pnpm-lock.yaml ./
-
-# Install dependencies using pnpm
-RUN pnpm install --frozen-lockfile
+# Install dependencies
+RUN npm install -g pnpm
 
 # Copy the rest of the application files
 COPY . .
