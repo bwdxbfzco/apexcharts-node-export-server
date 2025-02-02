@@ -21,7 +21,7 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Copy package files and install dependencies
 COPY package.json ./
-RUN pnpm install --frozen-lockfile --prod
+RUN pnpm install --prod
 
 # Copy application files
 COPY . .
