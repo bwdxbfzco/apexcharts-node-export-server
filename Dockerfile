@@ -1,4 +1,4 @@
-FROM node:22
+FROM node:22-slim
 
 # Create a non-root user
 RUN useradd -m appuser
@@ -11,6 +11,9 @@ COPY package.json ./
 
 # Install dependencies
 RUN npm install -g pnpm
+
+# install npm packages
+RUN pnpm install
 
 # Copy the rest of the application files
 COPY . .
