@@ -18,7 +18,10 @@ app.post('/generate-chart', async (req, res) => {
 
     try {
         // Launch a Puppeteer browser instance
-        const browser = await puppeteer.launch();
+        const browser = await puppeteer.launch({
+            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+        });
         const page = await browser.newPage();
 
         // HTML content to render ApexChart
