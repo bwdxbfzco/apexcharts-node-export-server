@@ -1,6 +1,9 @@
 # Build stage
 FROM node:22-alpine AS build
 
+# Prevent Puppeteer from downloading Chromium
+ENV PUPPETEER_SKIP_DOWNLOAD=true
+
 # Install dependencies
 RUN apk add --no-cache \
     chromium \
