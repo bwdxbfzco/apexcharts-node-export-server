@@ -7,6 +7,7 @@ ENV PUPPETEER_SKIP_DOWNLOAD=true
 # Install dependencies for Puppeteer
 RUN apt-get update && apt-get install -y --no-install-recommends \
     chromium \
+    chromium-sandbox \
     libnss3 \
     libx11-xcb1 \
     libxcb-dri3-0 \
@@ -41,6 +42,7 @@ FROM node:22-slim AS production
 # Install only runtime dependencies for Puppeteer
 RUN apt-get update && apt-get install -y --no-install-recommends \
     chromium \
+    chromium-sandbox \
     libnss3 \
     libx11-xcb1 \
     libxcb-dri3-0 \
