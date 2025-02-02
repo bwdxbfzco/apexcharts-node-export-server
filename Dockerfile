@@ -1,48 +1,60 @@
 # Build stage
-FROM node:22-alpine AS build
+FROM node:22-slim AS build
 
 # Prevent Puppeteer from downloading Chromium
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 
-# Install dependencies
-RUN apk add --no-cache \
+# Install dependencies for Puppeteer
+RUN apt-get update && apt-get install -y --no-install-recommends \
     chromium \
-    nss \
-    freetype \
-    harfbuzz \
-    ca-certificates \
-    ttf-freefont
+    libnss3 \
+    libx11-xcb1 \
+    libxcb-dri3-0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libgbm1 \
+    libasound2 \
+    fonts-liberation \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Create a non-root user
-RUN adduser -D appuser
+RUN useradd -m appuser
 
-# Set working directory
+# Set the working directory
 WORKDIR /app
 
 # Install pnpm
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Copy package files and install dependencies
-COPY package.json ./
-RUN pnpm install --prod
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile --prod
 
 # Copy application files
 COPY . .
 
 # Production stage
-FROM node:22-alpine AS production
+FROM node:22-slim AS production
 
-# Install only the required runtime dependencies
-RUN apk add --no-cache \
+# Install only runtime dependencies for Puppeteer
+RUN apt-get update && apt-get install -y --no-install-recommends \
     chromium \
-    nss \
-    freetype \
-    harfbuzz \
-    ca-certificates \
-    ttf-freefont
+    libnss3 \
+    libx11-xcb1 \
+    libxcb-dri3-0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libgbm1 \
+    libasound2 \
+    fonts-liberation \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Create a non-root user
-RUN adduser -D appuser
+RUN useradd -m appuser
 
 # Set working directory
 WORKDIR /app
@@ -54,7 +66,7 @@ COPY --from=build /app /app
 RUN chown -R appuser:appuser /app
 
 # Set Puppeteer to use system Chromium
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 # Switch to non-root user
 USER appuser
