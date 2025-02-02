@@ -1,0 +1,19 @@
+{
+  "name": "apexchart-generator",
+  "version": "1.0.0",
+  "description": "A Node.js service to generate ApexCharts as images using Puppeteer.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "body-parser": "^1.20.2",
+    "puppeteer": "^21.3.6"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "author": "Your Name",
+  "license": "MIT"
+}
