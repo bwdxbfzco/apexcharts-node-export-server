@@ -1,31 +1,63 @@
-FROM node:22-slim
-
-# Create a non-root user
-RUN useradd -m appuser
-
-# Set the working directory
-WORKDIR /app
-
-# Copy package.json and package-lock.json
-COPY package.json ./
+# Build stage
+FROM node:22-alpine AS build
 
 # Install dependencies
-RUN npm install -g pnpm
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont
 
-# install npm packages
-RUN pnpm install
+# Create a non-root user
+RUN adduser -D appuser
 
-# Copy the rest of the application files
+# Set working directory
+WORKDIR /app
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Copy package files and install dependencies
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile --prod
+
+# Copy application files
 COPY . .
 
-# Change ownership to the new user
+# Production stage
+FROM node:22-alpine AS production
+
+# Install only the required runtime dependencies
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont
+
+# Create a non-root user
+RUN adduser -D appuser
+
+# Set working directory
+WORKDIR /app
+
+# Copy only necessary files from the build stage
+COPY --from=build /app /app
+
+# Change ownership
 RUN chown -R appuser:appuser /app
 
-# Switch to the non-root user
+# Set Puppeteer to use system Chromium
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
+# Switch to non-root user
 USER appuser
 
-# Expose the port the app runs on
+# Expose the port
 EXPOSE 3000
 
-# Command to run the application
+# Run the application
 CMD ["node", "server.js"]
