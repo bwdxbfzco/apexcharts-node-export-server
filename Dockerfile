@@ -55,23 +55,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Create a non-root user
-RUN useradd -m appuser
-
 # Set working directory
 WORKDIR /app
 
 # Copy only necessary files from the build stage
 COPY --from=build /app /app
 
-# Change ownership
-RUN chown -R appuser:appuser /app
 
 # Set Puppeteer to use system Chromium
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
-
-# Switch to non-root user
-USER appuser
 
 # Expose the port
 EXPOSE 3000
